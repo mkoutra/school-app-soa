@@ -7,7 +7,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 
 public class DBUtil {
 	
-	private static BasicDataSource ds = new BasicDataSource();
+	private static BasicDataSource ds = new BasicDataSource();	// Container with connections (probably)
 	private static Connection connection;
 	
 	static {
