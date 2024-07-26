@@ -30,6 +30,8 @@ public class TeacherValidator<T> {
             errors.put("lastname", "Lastname should not include whitespaces");
         }
 
+        // Logic validation, calling dao if necessary
+
         return errors;
     }
 }
