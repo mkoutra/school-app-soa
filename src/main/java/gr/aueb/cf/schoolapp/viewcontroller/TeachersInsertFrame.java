@@ -13,7 +13,6 @@ import gr.aueb.cf.schoolapp.dto.TeacherReadOnlyDTO;
 import gr.aueb.cf.schoolapp.model.Teacher;
 import gr.aueb.cf.schoolapp.service.ITeacherService;
 import gr.aueb.cf.schoolapp.service.TeacherServiceImpl;
-import gr.aueb.cf.schoolapp.service.util.DBUtil;
 import gr.aueb.cf.schoolapp.validator.TeacherValidator;
 
 import javax.swing.JLabel;
@@ -24,9 +23,6 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;

@@ -70,6 +70,12 @@ public class MainMenuFrame extends JFrame {
 		contentPane.add(studentsBtn);
 		
 		JLabel studentsLabel = new JLabel("Εκπαιδευόμενοι");
+		studentsBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Main.getStudentsMenuFrame().setVisible(true);
+				Main.getMainMenuFrame().setEnabled(false);
+			}
+		});
 		studentsLabel.setBounds(70, 157, 110, 40);
 		contentPane.add(studentsLabel);
 		
