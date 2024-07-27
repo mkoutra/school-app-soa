@@ -7,13 +7,13 @@ import org.apache.commons.dbcp2.BasicDataSource;
 
 public class DBUtil {
 	
-	private static BasicDataSource ds = new BasicDataSource();	// Container with connections (probably)
+	private final static BasicDataSource ds = new BasicDataSource();	// Container with connections
 	private static Connection connection;
 	
 	static {
 		ds.setUrl("jdbc:mysql://127.0.0.1:3306/school6db?serverTimeZone=UTC");
 		ds.setUsername("userdb6");
-		ds.setPassword(System.getenv("PASS_DB6"));	// There must be an environmental variable PASS_CB6 with the user password
+		ds.setPassword(System.getenv("PASS_DB6"));	// environmental variable PASS_CB6 with user's password
 
 		// Connection pool config
 		ds.setInitialSize(10);	// 10 connections in pool
@@ -23,7 +23,7 @@ public class DBUtil {
 	}
 	
 	/**
-	 * No instance of this class should be available
+	 * No instance of this class should be available (Utility class)
 	 */
 	private DBUtil() {
 	}
