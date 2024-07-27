@@ -74,7 +74,7 @@ public class TeachersUpdateDeleteFrame extends JFrame {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowOpened(WindowEvent e) {
-				lastnameSearchLabel.setText("");
+				lastnameSearchText.setText("");
 				buildTable();
 				idText.setText("");
 				firstnameText.setText("");
@@ -84,7 +84,7 @@ public class TeachersUpdateDeleteFrame extends JFrame {
 			}
 			@Override
 			public void windowActivated(WindowEvent e) {
-				lastnameSearchLabel.setText("");
+				lastnameSearchText.setText("");
 				buildTable();	// Refresh after update / delete
 				idText.setText("");
 				firstnameText.setText("");

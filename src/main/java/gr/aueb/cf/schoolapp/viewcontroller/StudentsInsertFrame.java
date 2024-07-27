@@ -67,25 +67,25 @@ public class StudentsInsertFrame extends JFrame {
 
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
+
 		JPanel panel = new JPanel();
 		panel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		panel.setBounds(76, 12, 281, 148);
+		panel.setBounds(34, 12, 383, 148);
 		contentPane.add(panel);
 		panel.setLayout(null);
-		
+
 		JLabel studentFnameLabel = new JLabel("Όνομα");
 		studentFnameLabel.setFont(new Font("Dialog", Font.BOLD, 12));
 		studentFnameLabel.setForeground(new Color(32, 74, 135));
-		studentFnameLabel.setBounds(12, 34, 52, 15);
+		studentFnameLabel.setBounds(40, 37, 52, 15);
 		panel.add(studentFnameLabel);
-		
+
 		JLabel studentLnameLabel = new JLabel("Επώνυμο");
 		studentLnameLabel.setForeground(new Color(32, 74, 135));
 		studentLnameLabel.setFont(new Font("Dialog", Font.BOLD, 12));
-		studentLnameLabel.setBounds(12, 93, 64, 15);
+		studentLnameLabel.setBounds(40, 96, 64, 15);
 		panel.add(studentLnameLabel);
-		
+
 		studentFnameText = new JTextField();
 		studentFnameText.addFocusListener(new FocusAdapter() {
 			@Override
@@ -95,9 +95,9 @@ public class StudentsInsertFrame extends JFrame {
 			}
 		});
 		studentFnameText.setColumns(10);
-		studentFnameText.setBounds(82, 28, 170, 27);
+		studentFnameText.setBounds(110, 31, 170, 27);
 		panel.add(studentFnameText);
-		
+
 		studentLnameText = new JTextField();
 		studentLnameText.addFocusListener(new FocusAdapter() {
 			@Override
@@ -107,19 +107,19 @@ public class StudentsInsertFrame extends JFrame {
 			}
 		});
 		studentLnameText.setColumns(10);
-		studentLnameText.setBounds(82, 87, 170, 27);
+		studentLnameText.setBounds(110, 90, 170, 27);
 		panel.add(studentLnameText);
-		
+
 		errorStudentFname = new JLabel("");
 		errorStudentFname.setFont(new Font("Dialog", Font.BOLD, 10));
 		errorStudentFname.setForeground(new Color(204, 0, 0));
-		errorStudentFname.setBounds(82, 55, 170, 20);
+		errorStudentFname.setBounds(110, 58, 261, 20);
 		panel.add(errorStudentFname);
-		
+
 		errorStudentLname = new JLabel("");
 		errorStudentLname.setForeground(new Color(204, 0, 0));
 		errorStudentLname.setFont(new Font("Dialog", Font.BOLD, 10));
-		errorStudentLname.setBounds(82, 113, 170, 20);
+		errorStudentLname.setBounds(110, 116, 261, 20);
 		panel.add(errorStudentLname);
 		
 		JButton btnNewButton = new JButton("Εισαγωγή");
@@ -156,9 +156,9 @@ public class StudentsInsertFrame extends JFrame {
 			}
 		});
 		btnNewButton.setForeground(new Color(32, 74, 135));
-		btnNewButton.setBounds(158, 172, 117, 25);
+		btnNewButton.setBounds(171, 172, 117, 25);
 		contentPane.add(btnNewButton);
-		
+
 		JButton closeBtn = new JButton("Κλείσιμο");
 		closeBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -169,7 +169,7 @@ public class StudentsInsertFrame extends JFrame {
 		closeBtn.setForeground(new Color(32, 74, 135));
 		closeBtn.setBounds(300, 233, 117, 25);
 		contentPane.add(closeBtn);
-		
+
 		JSeparator separator = new JSeparator();
 		separator.setBounds(12, 222, 416, 1);
 		contentPane.add(separator);
