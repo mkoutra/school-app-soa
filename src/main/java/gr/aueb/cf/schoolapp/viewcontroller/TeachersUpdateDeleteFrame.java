@@ -1,9 +1,6 @@
 package gr.aueb.cf.schoolapp.viewcontroller;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,21 +17,18 @@ import gr.aueb.cf.schoolapp.Main;
 import gr.aueb.cf.schoolapp.dao.ITeacherDAO;
 import gr.aueb.cf.schoolapp.dao.TeacherDAOImpl;
 import gr.aueb.cf.schoolapp.dao.exceptions.TeacherDAOException;
-import gr.aueb.cf.schoolapp.dto.TeacherInsertDTO;
 import gr.aueb.cf.schoolapp.dto.TeacherReadOnlyDTO;
 import gr.aueb.cf.schoolapp.dto.TeacherUpdateDTO;
 import gr.aueb.cf.schoolapp.model.Teacher;
 import gr.aueb.cf.schoolapp.service.ITeacherService;
 import gr.aueb.cf.schoolapp.service.TeacherServiceImpl;
 import gr.aueb.cf.schoolapp.service.exceptions.TeacherNotFoundException;
-import gr.aueb.cf.schoolapp.service.util.DBUtil;
 import gr.aueb.cf.schoolapp.validator.TeacherValidator;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JButton;
-import java.awt.Color;
 import javax.swing.border.BevelBorder;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -44,7 +38,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.Toolkit;
 
 public class TeachersUpdateDeleteFrame extends JFrame {
 
@@ -86,6 +79,8 @@ public class TeachersUpdateDeleteFrame extends JFrame {
 				idText.setText("");
 				firstnameText.setText("");
 				lastnameText.setText("");
+				errorFirstname.setText("");
+				errorLastname.setText("");
 			}
 			@Override
 			public void windowActivated(WindowEvent e) {
@@ -94,6 +89,8 @@ public class TeachersUpdateDeleteFrame extends JFrame {
 				idText.setText("");
 				firstnameText.setText("");
 				lastnameText.setText("");
+				errorFirstname.setText("");
+				errorLastname.setText("");
 			}
 		});
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -252,9 +249,10 @@ public class TeachersUpdateDeleteFrame extends JFrame {
 		firstnameText.setBounds(79, 69, 160, 19);
 		panel.add(firstnameText);
 		firstnameText.setColumns(10);
-		
+
 		errorFirstname = new JLabel("");
-		errorFirstname.setForeground(new Color(239, 41, 41));
+		errorFirstname.setFont(new Font("Dialog", Font.BOLD, 10));
+		errorFirstname.setForeground(new Color(204, 0, 0));
 		errorFirstname.setBounds(79, 85, 160, 19);
 		panel.add(errorFirstname);
 		
@@ -264,15 +262,15 @@ public class TeachersUpdateDeleteFrame extends JFrame {
 			public void focusLost(FocusEvent e) {
 				String inputLastname = lastnameText.getText().trim();
 				validateLastname(inputLastname);
-
 			}
 		});
 		lastnameText.setBounds(79, 114, 160, 19);
 		panel.add(lastnameText);
 		lastnameText.setColumns(10);
-		
+
 		errorLastname = new JLabel("");
-		errorLastname.setForeground(new Color(239, 41, 41));
+		errorLastname.setFont(new Font("Dialog", Font.BOLD, 10));
+		errorLastname.setForeground(new Color(204, 0, 0));
 		errorLastname.setBounds(79, 133, 160, 19);
 		panel.add(errorLastname);
 		

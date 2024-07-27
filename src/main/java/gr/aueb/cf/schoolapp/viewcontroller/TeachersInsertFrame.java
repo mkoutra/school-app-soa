@@ -19,7 +19,7 @@ import gr.aueb.cf.schoolapp.validator.TeacherValidator;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-import java.awt.Color;
+import java.awt.*;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.JButton;
@@ -32,7 +32,6 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.Toolkit;
 import java.util.Map;
 
 public class TeachersInsertFrame extends JFrame {
@@ -58,6 +57,8 @@ public class TeachersInsertFrame extends JFrame {
 			public void windowActivated(WindowEvent e) {
 				firstnameText.setText("");
 				lastnameText.setText("");
+				errorFirstname.setText("");
+				errorLastname.setText("");
 				
 			}
 		});
@@ -102,6 +103,8 @@ public class TeachersInsertFrame extends JFrame {
 		firstnameText.setColumns(10);
 		
 		errorFirstname = new JLabel("");
+		errorFirstname.setForeground(new Color(204, 0, 0));
+		errorFirstname.setFont(new Font("Dialog", Font.BOLD, 10));
 		errorFirstname.setBounds(85, 39, 222, 26);
 		panel.add(errorFirstname);
 		
@@ -130,8 +133,10 @@ public class TeachersInsertFrame extends JFrame {
 		lastnameLabel.setBounds(12, 84, 71, 15);
 		panel.add(lastnameLabel);
 		lastnameLabel.setForeground(new Color(52, 101, 164));
-		
+
 		errorLastname = new JLabel("");
+		errorLastname.setForeground(new Color(204, 0, 0));
+		errorLastname.setFont(new Font("Dialog", Font.BOLD, 10));
 		errorLastname.setBounds(85, 101, 222, 26);
 		panel.add(errorLastname);
 		
