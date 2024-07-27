@@ -4,7 +4,7 @@ public class StudentInsertDTO extends BaseDTO {
     public StudentInsertDTO() {
     }
 
-    public StudentInsertDTO(Integer id, String firstname, String lastname) {
+    public StudentInsertDTO(String firstname, String lastname) {
         super(firstname, lastname);
     }
 

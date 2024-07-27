@@ -17,7 +17,7 @@ public class StudentDAOImpl implements IStudentDAO {
         String firstname = student.getFirstname();
         String lastname = student.getLastname();
 
-        String sql = "INSERT INTO (firstname, lastname) VALUES (?, ?);";
+        String sql = "INSERT INTO students (firstname, lastname) VALUES (?, ?);";
         try (Connection connection = DBUtil.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
 

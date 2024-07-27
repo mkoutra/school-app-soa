@@ -5,7 +5,16 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import gr.aueb.cf.schoolapp.Main;
-import gr.aueb.cf.schoolapp.service.util.DBUtil;
+import gr.aueb.cf.schoolapp.dao.IStudentDAO;
+import gr.aueb.cf.schoolapp.dao.StudentDAOImpl;
+import gr.aueb.cf.schoolapp.dao.exceptions.StudentDAOException;
+import gr.aueb.cf.schoolapp.dto.StudentReadOnlyDTO;
+import gr.aueb.cf.schoolapp.dto.StudentUpdateDTO;
+import gr.aueb.cf.schoolapp.model.Student;
+import gr.aueb.cf.schoolapp.service.IStudentService;
+import gr.aueb.cf.schoolapp.service.StudentServiceImpl;
+import gr.aueb.cf.schoolapp.service.exceptions.StudentNotFoundException;
+import gr.aueb.cf.schoolapp.validator.StudentValidator;
 
 import java.awt.Toolkit;
 import javax.swing.JTable;
@@ -18,10 +27,9 @@ import java.awt.Font;
 import javax.swing.JScrollPane;
 import javax.swing.border.BevelBorder;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.awt.event.ActionEvent;
 import javax.swing.table.DefaultTableModel;
@@ -33,17 +41,19 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
 public class StudentsUpdateDeleteFrame extends JFrame {
+	private static final IStudentDAO studentDAO = new StudentDAOImpl();
+	private static final IStudentService studentService = new StudentServiceImpl(studentDAO);
 
 	private static final long serialVersionUID = 1L;
-	private JPanel contentPane;
-	private JTable studentsTable;
-	private JTextField studentLnameSearchText;
-	private JTextField studentIdText;
-	private JTextField studentFnameText;
-	private JTextField studentLnameText;
-	private JLabel errorStudentFname;
-	private JLabel errorStudentLname;
-	private DefaultTableModel model;
+	private final JPanel contentPane;
+	private final JTable studentsTable;
+	private final JTextField studentLnameSearchText;
+	private final JTextField studentIdText;
+	private final JTextField studentFnameText;
+	private final JTextField studentLnameText;
+	private final JLabel errorStudentFname;
+	private final JLabel errorStudentLname;
+	private final DefaultTableModel model;
 
 	/**
 	 * Create the frame.
@@ -181,37 +191,36 @@ public class StudentsUpdateDeleteFrame extends JFrame {
 		JButton studentUpdateBtn = new JButton("Ενημέρωση");
 		studentUpdateBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int inputId = Integer.parseInt(studentIdText.getText().trim());
-				String inputFirstname = studentFnameText.getText().trim();
-				String inputLastname = studentLnameText.getText().trim();
-				
-				// ------------------------------ Validation --------------------------------
-				validateFirstname(inputFirstname);
-				validateLastname(inputLastname);
-				
-				if (inputFirstname.isEmpty() || inputLastname.isEmpty()) {
+				// Data Binding
+				StudentUpdateDTO updateDTO = new StudentUpdateDTO(
+					Integer.parseInt(studentIdText.getText().trim()),
+					studentFnameText.getText().trim(),
+					studentLnameText.getText().trim()
+				);
+
+				// Validation
+				Map<String, String> errors = StudentValidator.validate(updateDTO);
+				String firstnameMessage;
+				String lastnameMessage;
+
+				if (!errors.isEmpty()) {
+					firstnameMessage = errors.getOrDefault("firstname", "");
+					lastnameMessage = errors.getOrDefault("lastname" ,"");
+					errorStudentFname.setText(firstnameMessage);
+					errorStudentLname.setText(lastnameMessage);
 					return;
 				}
-				// --------------------------------------------------------------------------
-				
-				String sql = "UPDATE students SET firstname = ?, lastname = ? WHERE id = ?";
-				
-				try (Connection connection = DBUtil.getConnection();
-					 PreparedStatement ps = connection.prepareStatement(sql)) {
-					
-					ps.setString(1,  inputFirstname);
-					ps.setString(2,  inputLastname);
-					ps.setInt(3,  inputId);
-					
+
+				try {
 					int answer = JOptionPane.showConfirmDialog(null, "Είστε σίγουρος/η;", "Ενημέρωση", JOptionPane.YES_NO_OPTION);
 					if (answer == JOptionPane.YES_OPTION) {
-						int rowsAffected = ps.executeUpdate();
-						JOptionPane.showMessageDialog(null, rowsAffected + "γραμμή/ες ενημερώθηκαν", "Ενημέρωση", JOptionPane.INFORMATION_MESSAGE);
-					} else {
-						return;
+						Student student = studentService.updateStudent(updateDTO);
+						StudentReadOnlyDTO readOnlyDTO = mapToStudentReadOnlyDTO(student);
+						JOptionPane.showMessageDialog(null, "Student with id: " + readOnlyDTO.getId() + " was updated",
+								"Ενημέρωση", JOptionPane.INFORMATION_MESSAGE);
 					}
-				} catch(SQLException e1) {
-					JOptionPane.showMessageDialog(null, "Delete Error", "Error" ,JOptionPane.ERROR_MESSAGE);
+				} catch(StudentNotFoundException | StudentDAOException e1) {
+					JOptionPane.showMessageDialog(null, e1.getMessage(), "Update error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
@@ -222,24 +231,19 @@ public class StudentsUpdateDeleteFrame extends JFrame {
 		JButton studentDeleteBtn = new JButton("Διαγραφή");
 		studentDeleteBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int inputId = Integer.parseInt(studentIdText.getText().trim());
+				if (studentIdText.getText().trim().isEmpty()) return;
 
-				String sql = "DELETE FROM students WHERE id = ?";
-				
-				try (Connection connection = DBUtil.getConnection();
-					 PreparedStatement ps = connection.prepareStatement(sql)) {
-					
-					ps.setInt(1, inputId);
-					
+				Integer inputId = Integer.parseInt(studentIdText.getText().trim());
+
+				try {
 					int answer = JOptionPane.showConfirmDialog(null, "Είστε σίγουρος/η;", "Διαγραφή", JOptionPane.YES_NO_OPTION);
 					if (answer == JOptionPane.YES_OPTION) {
-						int rowsAffected = ps.executeUpdate();
-						JOptionPane.showMessageDialog(null, rowsAffected + "γραμμή/ες διαγράφηκαν", "Διαγραφή", JOptionPane.INFORMATION_MESSAGE);
-					} else {
-						return;
+						studentService.deleteStudent(inputId);
+						JOptionPane.showMessageDialog(null,
+								"Student with id: " + inputId +" was deleted", "Διαγραφή", JOptionPane.INFORMATION_MESSAGE);
 					}
-				} catch(SQLException e1) {
-					JOptionPane.showMessageDialog(null, "Delete Error", "Error" ,JOptionPane.ERROR_MESSAGE);
+				} catch(StudentNotFoundException | StudentDAOException e1) {
+					JOptionPane.showMessageDialog(null, e1.getMessage(), "Delete error" ,JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
@@ -261,35 +265,40 @@ public class StudentsUpdateDeleteFrame extends JFrame {
 	
 	private void buildTable() {
 		String lastnameSearchInput = studentLnameSearchText.getText().trim();
+		List<Student> students;
+		List<StudentReadOnlyDTO> readOnlyDTOS = new ArrayList<>();
 
-		String sql = "SELECT id, firstname, lastname FROM students WHERE lastname LIKE ?";
-		
-		try(Connection connection = DBUtil.getConnection();
-			PreparedStatement ps = connection.prepareStatement(sql)) {
-			
-			Vector<String> vector;
-			
-			ps.setString(1, lastnameSearchInput + "%");
-			ResultSet rs = ps.executeQuery();
-			
-			// Remove all table rows
-			for (int i = model.getRowCount() - 1; i >= 0; i--) {
-				model.removeRow(i);
+		try {
+			students = studentService.getStudentByLastname(lastnameSearchInput);
+
+			for (Student student : students) {
+				readOnlyDTOS.add(mapToStudentReadOnlyDTO(student));
 			}
-			
-			// Put the output of SQL server to the model 
-			while (rs.next()) {
-				vector = new Vector<>(3);
-				vector.add(rs.getString("id"));
-				vector.add(rs.getString("firstname"));
-				vector.add(rs.getString("lastname"));
-				model.addRow(vector);
-			}
-		} catch(SQLException e1) {
-			JOptionPane.showMessageDialog(null, "Search Error", "Error" ,JOptionPane.ERROR_MESSAGE);
+
+			addToModel(readOnlyDTOS);
+		} catch(StudentDAOException e1) {
+			JOptionPane.showMessageDialog(null, e1.getMessage(), "Error" ,JOptionPane.ERROR_MESSAGE);
 		}
 	}
-	
+
+	private void addToModel(List<StudentReadOnlyDTO> students) {
+		Vector<String> vector;
+
+		// Remove all table rows
+		for (int i = model.getRowCount() - 1; i >= 0; i--) {
+			model.removeRow(i);
+		}
+
+		// Put the output of SQL server to the model
+		for(StudentReadOnlyDTO student : students) {
+			vector = new Vector<>(3);
+			vector.add(String.valueOf(student.getId()));
+			vector.add(student.getFirstname());
+			vector.add(student.getLastname());
+			model.addRow(vector);
+		}
+	}
+
 	private void cleanPanelTexts() {
 		studentIdText.setText("");
 		studentFnameText.setText("");
@@ -302,7 +311,11 @@ public class StudentsUpdateDeleteFrame extends JFrame {
 		if(inputFirstname.isEmpty()) {
 			errorStudentFname.setText("Το όνομα είναι υποχρεωτικό.");
 		}
-		
+
+		if (inputFirstname.matches("^.*\\s+.*$")) {
+			errorStudentFname.setText("Το όνομα δεν πρέπει να έχει κενά.");
+		}
+
 		if (!inputFirstname.isEmpty()) {
 			errorStudentFname.setText("");
 		}
@@ -312,9 +325,17 @@ public class StudentsUpdateDeleteFrame extends JFrame {
 		if(inputLastname.isEmpty()) {
 			errorStudentLname.setText("Το επώνυμο είναι υποχρεωτικό");
 		}
-		
+
+		if (inputLastname.matches("^.*\\s+.*$")) {
+			errorStudentLname.setText("Το επώνυμο δεν πρέπει να έχει κενά.");
+		}
+
 		if (!inputLastname.isEmpty()) {
 			errorStudentLname.setText("");
 		}
+	}
+
+	private StudentReadOnlyDTO mapToStudentReadOnlyDTO(Student student) {
+		return new StudentReadOnlyDTO(student.getId(), student.getFirstname(), student.getLastname());
 	}
 }

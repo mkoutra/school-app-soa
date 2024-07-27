@@ -5,7 +5,15 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import gr.aueb.cf.schoolapp.Main;
-import gr.aueb.cf.schoolapp.service.util.DBUtil;
+import gr.aueb.cf.schoolapp.dao.IStudentDAO;
+import gr.aueb.cf.schoolapp.dao.StudentDAOImpl;
+import gr.aueb.cf.schoolapp.dao.exceptions.StudentDAOException;
+import gr.aueb.cf.schoolapp.dto.StudentInsertDTO;
+import gr.aueb.cf.schoolapp.dto.StudentReadOnlyDTO;
+import gr.aueb.cf.schoolapp.model.Student;
+import gr.aueb.cf.schoolapp.service.IStudentService;
+import gr.aueb.cf.schoolapp.service.StudentServiceImpl;
+import gr.aueb.cf.schoolapp.validator.StudentValidator;
 
 import java.awt.Toolkit;
 import javax.swing.JLabel;
@@ -18,23 +26,23 @@ import javax.swing.border.BevelBorder;
 import javax.swing.JButton;
 import javax.swing.JSeparator;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.util.Map;
 
 public class StudentsInsertFrame extends JFrame {
+	private static final IStudentDAO studentDAO = new StudentDAOImpl();
+	private static final IStudentService studentService = new StudentServiceImpl(studentDAO);
 
 	private static final long serialVersionUID = 1L;
-	private JPanel contentPane;
-	private JTextField studentLnameText;
-	private JTextField studentFnameText;
-	private JLabel errorStudentFname;
-	private JLabel errorStudentLname;
+	private final JPanel contentPane;
+	private final JTextField studentLnameText;
+	private final JTextField studentFnameText;
+	private final JLabel errorStudentFname;
+	private final JLabel errorStudentLname;
 	
 	/**
 	 * Create the frame.
@@ -118,27 +126,32 @@ public class StudentsInsertFrame extends JFrame {
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Data binding
-				String inputFirstname = studentFnameText.getText().trim();
-				String inputLastname = studentLnameText.getText().trim();
-				
-				// ------------------------------ Validation --------------------------------
-				validateFirstname(inputFirstname);
-				validateLastname(inputLastname);
-				if (inputFirstname.isEmpty() || inputLastname.isEmpty()) {
+				StudentInsertDTO insertDTO = new StudentInsertDTO(
+						studentFnameText.getText().trim(),
+						studentLnameText.getText().trim()
+				);
+
+				// Validation
+				Map<String, String> errors = StudentValidator.validate(insertDTO);
+				String firstnameMessage;
+				String lastnameMessage;
+
+				if (!errors.isEmpty()) {
+					firstnameMessage = errors.getOrDefault("firstname", "");
+					lastnameMessage = errors.getOrDefault("lastname", "");
+					errorStudentFname.setText(firstnameMessage);
+					errorStudentLname.setText(lastnameMessage);
 					return;
 				}
-				// --------------------------------------------------------------------------
-				
-				String sql = "INSERT INTO students (firstname, lastname) VALUES (?, ?)";
-				
-				try (Connection connection = DBUtil.getConnection();
-					 PreparedStatement ps = connection.prepareStatement(sql)) {
-					ps.setString(1, inputFirstname);
-					ps.setString(2, inputLastname);
-					int n = ps.executeUpdate();
-					JOptionPane.showMessageDialog(null, n + " record(s) inserted", "INSERT", JOptionPane.PLAIN_MESSAGE);
-				} catch(SQLException e1) {
-					JOptionPane.showMessageDialog(null, "Insertion Error", "Error", JOptionPane.ERROR_MESSAGE);
+
+				try {
+					Student student = studentService.insertStudent(insertDTO);
+					StudentReadOnlyDTO readOnlyDTO = mapToStudentReadOnlyDTO(student);
+
+					JOptionPane.showMessageDialog(null, "Student with lastname: " + readOnlyDTO.getLastname() + " was inserted",
+							"INSERT", JOptionPane.PLAIN_MESSAGE);
+				} catch(StudentDAOException e1) {
+					JOptionPane.showMessageDialog(null, e1.getMessage(), "Insertion error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
@@ -187,5 +200,9 @@ public class StudentsInsertFrame extends JFrame {
 		studentLnameText.setText("");
 		errorStudentFname.setText("");
 		errorStudentLname.setText("");
+	}
+
+	private StudentReadOnlyDTO mapToStudentReadOnlyDTO(Student student) {
+		return new StudentReadOnlyDTO(student.getId(), student.getFirstname(), student.getLastname());
 	}
 }
